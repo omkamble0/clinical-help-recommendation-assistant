@@ -87,9 +87,15 @@ if STATIC_DIR.exists() and (STATIC_DIR / "index.html").exists():
     if (STATIC_DIR / "_next").exists():
         app.mount("/_next", StaticFiles(directory=str(STATIC_DIR / "_next")), name="next_static")
 
+    NO_CACHE_HEADERS = {
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0"
+    }
+
     @app.get("/", include_in_schema=False)
     async def serve_spa_root():
-        return FileResponse(str(STATIC_DIR / "index.html"))
+        return FileResponse(str(STATIC_DIR / "index.html"), headers=NO_CACHE_HEADERS)
 
     @app.get("/{full_path:path}", include_in_schema=False)
     async def serve_spa(full_path: str):
@@ -97,8 +103,9 @@ if STATIC_DIR.exists() and (STATIC_DIR / "index.html").exists():
             raise HTTPException(status_code=404, detail="Not Found")
         file_path = STATIC_DIR / full_path
         if file_path.is_file():
-            return FileResponse(str(file_path))
-        return FileResponse(str(STATIC_DIR / "index.html"))
+            headers = NO_CACHE_HEADERS if file_path.suffix == ".html" else {}
+            return FileResponse(str(file_path), headers=headers)
+        return FileResponse(str(STATIC_DIR / "index.html"), headers=NO_CACHE_HEADERS)
 else:
     @app.get("/")
     async def root():
