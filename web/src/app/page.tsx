@@ -21,7 +21,6 @@ import {
   HeartPulse,
   ArrowLeft,
   BookOpen,
-  Calculator,
   ArrowRight,
   Columns3,
   CheckCircle2,
@@ -29,8 +28,6 @@ import {
   ExternalLink,
   Activity
 } from "lucide-react";
-import { ClinicalCalculatorWidget } from "@/components/clinical-calculator-widget";
-import { ClinicalGovernanceAudit } from "@/components/clinical-governance-audit";
 import { IntegratedChatThread } from "@/components/integrated-chat-thread";
 import { MedicalWikiViewer } from "@/components/medical-wiki-viewer";
 
@@ -43,8 +40,6 @@ export default function Home() {
 
   const [result, setResult] = useState<SearchResponse | null>(null);
   const [patientResult, setPatientResult] = useState<SearchResponse | null>(null);
-  const [showCalculator, setShowCalculator] = useState<boolean>(false);
-  const [showAuditGovernance, setShowAuditGovernance] = useState<boolean>(false);
 
   // Primary Workspace View: 'assistant' | 'wiki' | 'split'
   const [primaryView, setPrimaryView] = useState<"assistant" | "wiki" | "split">("assistant");
@@ -238,13 +233,9 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60">
             <button
               type="button"
-              onClick={() => {
-                setPrimaryView("assistant");
-                setShowCalculator(false);
-                setShowAuditGovernance(false);
-              }}
+              onClick={() => setPrimaryView("assistant")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                primaryView === "assistant" && !showCalculator && !showAuditGovernance
+                primaryView === "assistant"
                   ? "bg-white text-slate-900 shadow-xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
               }`}
@@ -255,13 +246,9 @@ export default function Home() {
 
             <button
               type="button"
-              onClick={() => {
-                setPrimaryView("wiki");
-                setShowCalculator(false);
-                setShowAuditGovernance(false);
-              }}
+              onClick={() => setPrimaryView("wiki")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                primaryView === "wiki" && !showCalculator && !showAuditGovernance
+                primaryView === "wiki"
                   ? "bg-white text-slate-900 shadow-xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
               }`}
@@ -269,38 +256,6 @@ export default function Home() {
               <BookOpen className="w-3.5 h-3.5 text-slate-500" />
               <span>Medical Library</span>
               <span className="text-[10px] px-1 rounded bg-slate-200/80 text-slate-700">600</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setShowCalculator(!showCalculator);
-                setShowAuditGovernance(false);
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                showCalculator
-                  ? "bg-white text-slate-900 shadow-xs font-bold"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <Calculator className="w-3.5 h-3.5 text-slate-500" />
-              <span>Calculators</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setShowAuditGovernance(!showAuditGovernance);
-                setShowCalculator(false);
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                showAuditGovernance
-                  ? "bg-white text-slate-900 shadow-xs font-bold"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Safety & Audit</span>
             </button>
           </nav>
 
@@ -344,21 +299,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ================= POPUP MODALS: CALCULATOR & AUDIT ================= */}
-      {showCalculator && (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 animate-fade-in">
-          <ClinicalCalculatorWidget onClose={() => setShowCalculator(false)} />
-        </div>
-      )}
-
-      {showAuditGovernance && (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 animate-fade-in">
-          <ClinicalGovernanceAudit onClose={() => setShowAuditGovernance(false)} />
-        </div>
-      )}
-
       {/* ================= LANDING HERO (Clean, Premium, Authoritative) ================= */}
-      {!hasTopic && primaryView === "assistant" && !showCalculator && !showAuditGovernance ? (
+      {!hasTopic && primaryView === "assistant" ? (
         <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16 text-center animate-fade-in">
           {/* Subtle Trust Pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium mb-6">
