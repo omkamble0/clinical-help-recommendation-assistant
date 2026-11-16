@@ -198,7 +198,13 @@ LAYPERSON_CLINICAL_MAP: List[Dict[str, Any]] = [
         "primary_label": "Nephrolithiasis (Kidney Stones)"
     },
     {
-        "patterns": [r"\b(sugar disease|high blood sugar|sweet pee|diabetes|diabetic)\b"],
+        "patterns": [r"\b(egfr|gfr|creatinine|kidney function|renal function|kidney filter|kidney damage|ckd|chronic kidney disease|microalbuminuria|albuminuria|protein in urine)\b"],
+        "clinical_synonyms": ["Chronic Kidney Disease (CKD)", "KDIGO Staging G1-G5", "Glomerular Filtration Rate", "SGLT2 Inhibitors for Renal Protection", "ACEi/ARB for Albuminuria", "Avoid Nephrotoxic NSAIDs"],
+        "is_common_ailment": False,
+        "primary_label": "Chronic Kidney Disease (Renal Function & eGFR)"
+    },
+    {
+        "patterns": [r"\b(sugar disease|high blood sugar|sweet pee|diabetes|diabetic|hba1c|a1c|glycated hemoglobin)\b"],
         "clinical_synonyms": ["Type 2 Diabetes Mellitus", "Hyperglycemia", "HbA1c Target <7.0%", "Metformin / GLP-1 Receptor Agonists", "SGLT2 Inhibitors"],
         "is_common_ailment": False,
         "primary_label": "Type 2 Diabetes Mellitus"

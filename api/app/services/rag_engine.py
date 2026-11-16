@@ -328,17 +328,43 @@ def get_elaboration_leadings(query: str, sources: List[SourceDocument]) -> List[
     return leadings
 
 
-def find_matched_disease_record(query: str, sources: Optional[List[SourceDocument]] = None):
+def find_matched_disease_record(
+    query: str,
+    sources: Optional[List[SourceDocument]] = None,
+    parsed_analysis: Optional[ParsedQueryAnalysis] = None
+):
     """
     Retrieves the authoritative DiseaseRecord from medical_db corresponding to the query or retrieved sources.
     Searches across:
-    1. DOC-DB source IDs (e.g., DOC-DB-DIS-CARD-001 or paper IDs)
-    2. Exact and fuzzy disease name match from query
-    3. Source titles and keywords
+    1. Inbound parsed entities (primary_condition / clinical_synonyms)
+    2. Retrieved sources (DOC-DB IDs, titles, guidelines)
+    3. Disease name match from cleaned query
     """
     try:
         from app.services.medical_db import medical_db
-        # 1. First priority: Search medical_db by cleaned query
+
+        # Priority 1: Check parsed clinical entity if available
+        if parsed_analysis and parsed_analysis.entities.primary_condition:
+            cond = parsed_analysis.entities.primary_condition
+            m = medical_db.search_diseases(query=cond, limit=1)
+            if m:
+                return m[0]
+
+        # Priority 2: Check retrieved evidence sources
+        if sources:
+            for s in sources:
+                if s.id and s.id.startswith("DOC-DB-"):
+                    d_id = s.id.replace("DOC-DB-", "")
+                    rec = medical_db.get_disease_by_id(d_id)
+                    if rec:
+                        return rec
+                if s.title:
+                    clean_title = s.title.split(":")[0].strip()
+                    m = medical_db.search_diseases(query=clean_title, limit=1)
+                    if m:
+                        return m[0]
+
+        # Priority 3: Cleaned query (if concise disease name or guideline query)
         clean_q = query.strip()
         for pfx in [
             "what are the verified clinical guidelines and evidence-backed treatments for",
@@ -359,30 +385,7 @@ def find_matched_disease_record(query: str, sources: Optional[List[SourceDocumen
         if matched:
             return matched[0]
 
-        # 2. Second priority: Search medical_db by raw query
-        matched_raw = medical_db.search_diseases(query=query, limit=1)
-        if matched_raw:
-            return matched_raw[0]
-
-        # 3. Third priority: Check retrieved sources
-        if sources:
-            for s in sources:
-                if s.id and s.id.startswith("DOC-DB-"):
-                    d_id = s.id.replace("DOC-DB-", "")
-                    rec = medical_db.get_disease_by_id(d_id)
-                    if rec:
-                        return rec
-                if s.title and ":" in s.title:
-                    candidate_name = s.title.split(":")[0].strip()
-                    m = medical_db.search_diseases(query=candidate_name, limit=1)
-                    if m:
-                        return m[0]
-
-            if sources[0].title:
-                m_top = medical_db.search_diseases(query=sources[0].title, limit=1)
-                if m_top:
-                    return m_top[0]
-        # 4. Fourth priority: Dynamic monograph generation from 133,000+ CMS & WHO catalog
+        # Priority 4: Dynamic monograph generation from 133,000+ CMS & WHO catalog
         try:
             from app.services.encyclopedia_engine import encyclopedia_engine
             tax_rec = encyclopedia_engine.synthesize_record_from_taxonomy(clean_q)
@@ -1099,7 +1102,7 @@ def generate_clinician_synthesis(
     citation_list = [f"[{i+1}]" for i in range(len(sources))]
     all_citations = ", ".join(citation_list)
 
-    matched_rec = find_matched_disease_record(query, sources)
+    matched_rec = find_matched_disease_record(query, sources, parsed_analysis)
 
     # 1. Pathophysiologic Mechanism & Disease Overview
     if matched_rec:
@@ -1264,7 +1267,7 @@ def generate_patient_synthesis(
     if not sources:
         return "The retrieved clinical guidelines do not contain enough information to address this query.", [], []
 
-    matched_rec = find_matched_disease_record(query, sources)
+    matched_rec = find_matched_disease_record(query, sources, parsed_analysis)
     top_s = sources[0]
     sec_s = sources[1] if len(sources) > 1 else None
 
