@@ -1124,6 +1124,27 @@ def generate_clinician_synthesis(
             f"counteracts maladaptive compensatory mechanisms, and prevents downstream end-organ damage.\n\n"
         )
 
+    # Deterministic Biomarker Stratification for Clinicians
+    biomarker_clinician_section = ""
+    try:
+        from app.core.biomarker_engine import evaluate_clinical_metrics
+        if parsed_analysis and parsed_analysis.entities.clinical_metrics:
+            bio_report = evaluate_clinical_metrics(parsed_analysis.entities.clinical_metrics)
+            if bio_report.evaluations:
+                b_lines = ["### Deterministic Biomarker Stratification & Guideline Thresholds\n"]
+                for ev in bio_report.evaluations:
+                    b_lines.append(f"• **{ev.metric_name} ({ev.raw_value})**: **{ev.clinical_stage}** [{ev.classification}]")
+                    b_lines.append(f"  - *Guideline Reference:* {ev.guideline_source}")
+                    b_lines.append(f"  - *Pathophysiologic Implication:* {ev.clinical_implication}")
+                    b_lines.append(f"  - *Mandated Clinical Action:* {ev.actionable_guidance} [1]")
+                if bio_report.multi_marker_synergies:
+                    b_lines.append("\n• **Cardiorenal & Metabolic Synergies:**")
+                    for syn in bio_report.multi_marker_synergies:
+                        b_lines.append(f"  - ⚠️ {syn} [1]")
+                biomarker_clinician_section = "\n\n".join(b_lines) + "\n\n"
+    except Exception:
+        pass
+
     # Context gaps if any
     gaps_clinical_note = ""
     if parsed_analysis.context_gaps:
@@ -1220,6 +1241,7 @@ def generate_clinician_synthesis(
 
     answer = (
         f"{pathophysiology_section}"
+        f"{biomarker_clinician_section}"
         f"{gaps_clinical_note}"
         f"{trial_analysis_section}"
         f"{gdmt_solutions_section}"
@@ -1491,7 +1513,29 @@ def generate_patient_synthesis(
         f"***Disclaimer:** This information is synthesized from clinical guidelines for educational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider regarding any medical condition.*"
     )
 
-    answer = section_1 + patient_gap_section + section_2 + section_3 + section_4 + section_5
+    # Deterministic Biomarker Evaluation for Patients
+    biomarker_patient_section = ""
+    try:
+        from app.core.biomarker_engine import evaluate_clinical_metrics
+        if parsed_analysis and parsed_analysis.entities.clinical_metrics:
+            bio_report = evaluate_clinical_metrics(parsed_analysis.entities.clinical_metrics)
+            if bio_report.evaluations:
+                b_lines = ["### Your Lab Numbers & Measurements\n"]
+                for ev in bio_report.evaluations:
+                    b_lines.append(f"• **{ev.metric_name} ({ev.raw_value})**: {ev.clinical_stage} [{ev.classification}]")
+                    if ev.estimated_metric:
+                        b_lines.append(f"  - *Estimated Value:* {ev.estimated_metric}")
+                    b_lines.append(f"  - *What This Means:* {ev.clinical_implication}")
+                    b_lines.append(f"  - *Recommended Next Step:* {ev.actionable_guidance} [1]")
+                if bio_report.multi_marker_synergies:
+                    b_lines.append("\n• **Important Health Connection:**")
+                    for syn in bio_report.multi_marker_synergies:
+                        b_lines.append(f"  - ⚠️ {syn} [1]")
+                biomarker_patient_section = "\n\n".join(b_lines) + "\n\n"
+    except Exception:
+        pass
+
+    answer = section_1 + patient_gap_section + biomarker_patient_section + section_2 + section_3 + section_4 + section_5
 
     try:
         from app.services.jargon_engine import extract_contextual_jargon
@@ -1535,11 +1579,22 @@ def generate_response(
     Injects retrieved vector chunks into the selected prompt template (PATIENT_PROMPT vs CLINICIAN_PROMPT).
     Strictly locks the LLM's vocabulary, statistical density, and tone to the user's active mode.
     """
-    context_str = format_retrieved_context_chunks(sources)
-    routed_system_prompt = route_prompt(user_mode, query, context_str)
-
     if not parsed_analysis:
         parsed_analysis = parse_clinical_query(query)
+
+    context_str = format_retrieved_context_chunks(sources)
+
+    # Augment context with deterministic biomarker synthesis if numerical labs present
+    try:
+        from app.core.biomarker_engine import evaluate_clinical_metrics
+        if parsed_analysis and parsed_analysis.entities.clinical_metrics:
+            bio_report = evaluate_clinical_metrics(parsed_analysis.entities.clinical_metrics)
+            if bio_report.context_synthesis:
+                context_str += f"\n\n{bio_report.context_synthesis}"
+    except Exception:
+        pass
+
+    routed_system_prompt = route_prompt(user_mode, query, context_str)
 
     if user_mode == UserMode.PROFESSIONAL:
         det_answer = generate_clinician_synthesis(query, sources, parsed_analysis)

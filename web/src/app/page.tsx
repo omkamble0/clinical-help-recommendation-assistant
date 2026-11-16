@@ -59,6 +59,44 @@ export default function Home() {
   // First-time user friendly guidance & animated curiosity placeholder
   const [showGuideBar, setShowGuideBar] = useState(true);
   const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
+  const [activePathway, setActivePathway] = useState<"symptoms" | "meds" | "conditions">("symptoms");
+  const [previewTab, setPreviewTab] = useState<"patient" | "clinician">("patient");
+
+  const pathwayConfigs = {
+    symptoms: {
+      icon: "🩺",
+      title: "1. Check Symptoms",
+      description: "Feeling unwell or worried? Describe what hurts to see safe next steps.",
+      placeholder: "Describe your symptoms (e.g. sharp chest tightness when breathing deeply)...",
+      chips: [
+        "Crushing chest pressure radiating to left arm",
+        "Dizzy and lightheaded when standing up quickly",
+        "Persistent dry hacking cough for 3 weeks"
+      ]
+    },
+    meds: {
+      icon: "💊",
+      title: "2. Pill & Drug Safety",
+      description: "Check side effects, missed doses, and whether two medicines mix safely.",
+      placeholder: "Enter medicine names (e.g. Can I take Metformin with Ibuprofen?)...",
+      chips: [
+        "Can I take paracetamol with blood pressure pills?",
+        "Paxlovid drug interactions with cholesterol statins",
+        "Semaglutide side effects and what to do if I miss a dose"
+      ]
+    },
+    conditions: {
+      icon: "📋",
+      title: "3. Understand Conditions & Labs",
+      description: "Ask about a diagnosis or typed lab numbers (HbA1c, BP, eGFR) in simple words.",
+      placeholder: "Enter a condition or lab test (e.g. What does HbA1c 8.2% and eGFR 45 mean?)...",
+      chips: [
+        "What does high microalbuminuria in urine mean?",
+        "How to reverse prediabetes HbA1c of 6.1%",
+        "Explaining Stage 2 high blood pressure guidelines"
+      ]
+    }
+  };
 
   const patientPrompts = useMemo(() => [
     "Why do my hands feel cold even when it's warm?",
@@ -358,91 +396,69 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ================= LANDING HERO (Clean, Premium, Authoritative) ================= */}
+      {/* ================= LANDING HERO (Intent-Driven, Warm & Clear) ================= */}
       {!hasTopic && primaryView === "assistant" ? (
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16 text-center animate-fade-in">
-          {/* Subtle Trust Pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium mb-6">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Grounded in Peer-Reviewed Medical Guidelines (ACC/AHA, ESC, ADA, GINA)</span>
+        <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-16 text-center animate-fade-in space-y-6">
+          {/* Welcoming Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs font-semibold shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+            <span>What would you like to check today?</span>
           </div>
 
-          {/* Authoritative Main Headline */}
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
-            Medical answers, <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
-              verified by evidence.
-            </span>
-          </h1>
+          {/* Value-Driven Headline */}
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Clear medical answers you can <br className="hidden sm:inline" />
+              <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-teal-600 bg-clip-text text-transparent">
+                safely trust and understand.
+              </span>
+            </h1>
 
-          <p className="text-slate-600 text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-            Consult the AI clinical engine with zero hallucinations. Every response provides Oxford CEBM citation traceability, dosage thresholds, and drug safety checks.
-          </p>
+            <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              No scary rabbit holes or confusing medical jargon. AegisMed checks your questions against 600 peer-reviewed guidelines so you know exactly what to do next.
+            </p>
+          </div>
 
-          {/* Floating Search Input Card */}
-          <div className="relative mb-8 text-left">
-            {/* Simple, Friendly 3-Step Guide for First-Time Users */}
-            {showGuideBar && (
-              <div className="mb-4 text-left animate-fade-in">
-                <div className="relative bg-gradient-to-r from-indigo-50/70 via-slate-50 to-blue-50/70 border border-indigo-100 rounded-2xl p-3.5 shadow-2xs">
-                  <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-indigo-100/60">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px]">✨</span>
-                      <span><b>How AegisMed helps you</b> &mdash; Simple, safe, and private</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowGuideBar(false)}
-                      className="text-[11px] text-slate-400 hover:text-slate-600 font-medium transition-colors cursor-pointer"
-                    >
-                      ✕ got it
-                    </button>
-                  </div>
+          {/* 3 Intent Pathways (Solves "What is this website for?") */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+            {(["symptoms", "meds", "conditions"] as const).map((key) => {
+              const cfg = pathwayConfigs[key];
+              const isSelected = activePathway === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setActivePathway(key);
+                    inputRef.current?.focus();
+                  }}
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-white border-2 border-indigo-600 shadow-sm scale-[1.01]"
+                      : "bg-white/80 border-slate-200/90 shadow-2xs hover:border-slate-300 hover:bg-white"
+                  }`}
+                >
+                  <div className="text-2xl mb-1.5">{cfg.icon}</div>
+                  <div className="font-bold text-slate-900 text-xs sm:text-sm">{cfg.title}</div>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-snug line-clamp-2">
+                    {cfg.description}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <div className="flex items-start gap-2.5 bg-white/90 p-2.5 rounded-xl border border-slate-100 shadow-2xs">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold shrink-0">1</span>
-                      <div>
-                        <div className="text-xs font-bold text-slate-800">Ask in your own words</div>
-                        <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
-                          Type a symptom, a pill name, or what you feel. No medical jargon needed.
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2.5 bg-white/90 p-2.5 rounded-xl border border-slate-100 shadow-2xs">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-100 text-blue-700 text-xs font-bold shrink-0">2</span>
-                      <div>
-                        <div className="text-xs font-bold text-slate-800">Choose who it&apos;s for</div>
-                        <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
-                          Toggle <b>Patient</b> for plain everyday talk, or <b>Clinician</b> for doctor-level trial data.
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2.5 bg-white/90 p-2.5 rounded-xl border border-slate-100 shadow-2xs">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold shrink-0">3</span>
-                      <div>
-                        <div className="text-xs font-bold text-slate-800">Get facts you can trust</div>
-                        <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
-                          Clear explanations backed by real medical studies and questions for your doctor.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
+          {/* Active Conversational Input Box */}
+          <div className="bg-white rounded-3xl p-3 sm:p-4 border border-slate-200/90 shadow-md shadow-slate-100/60 space-y-3 text-left">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSearch();
               }}
-              className="relative flex items-center w-full h-16 bg-white rounded-2xl border border-slate-200/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-50/80 transition-all"
+              className="relative flex items-center w-full h-14 sm:h-16 bg-slate-50 rounded-2xl border border-slate-200 focus-within:border-indigo-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-indigo-50 transition-all p-1.5"
             >
-              <div className="pl-5 text-slate-400">
-                <Search className="w-5 h-5" />
+              <div className="pl-3 pr-2 text-xl select-none">
+                {pathwayConfigs[activePathway].icon}
               </div>
 
               <input
@@ -452,17 +468,11 @@ export default function Home() {
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onKeyDown={handleKeyDown}
-                placeholder={
-                  animatedPlaceholder
-                    ? `Try asking: "${animatedPlaceholder}"`
-                    : mode === "patient"
-                      ? "Ask in plain English (e.g. Why do my hands feel cold even when it's warm?)..."
-                      : "Enter clinical query, GDMT titration, or contraindication check..."
-                }
-                className="w-full h-full pl-3.5 pr-36 bg-transparent text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none"
+                placeholder={pathwayConfigs[activePathway].placeholder}
+                className="w-full h-full pl-2 pr-28 sm:pr-36 bg-transparent text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm outline-none"
               />
 
-              <div className="absolute right-2.5 flex items-center gap-1.5">
+              <div className="absolute right-2 flex items-center gap-1.5">
                 {query && (
                   <button
                     type="button"
@@ -479,13 +489,13 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={loading || !query.trim()}
-                  className="px-5 py-2.5 h-11 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white font-semibold text-xs sm:text-sm tracking-wide transition-all shadow-xs disabled:opacity-40 flex items-center gap-2"
+                  className="px-4 sm:px-5 py-2.5 h-10 sm:h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm tracking-wide transition-all shadow-xs disabled:opacity-40 flex items-center gap-1.5 shrink-0"
                 >
                   {loading ? (
                     <RefreshCw className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      <span>Ask AI</span>
+                      <span>Check</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
@@ -493,11 +503,29 @@ export default function Home() {
               </div>
             </form>
 
+            {/* Quick 1-Click Prompt Chips */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5 px-1">
+              <span className="text-[11px] font-semibold text-slate-400 mr-1">Tap an example:</span>
+              {pathwayConfigs[activePathway].chips.map((chipText, cIdx) => (
+                <button
+                  key={cIdx}
+                  type="button"
+                  onClick={() => {
+                    setQuery(chipText);
+                    handleSearch(chipText);
+                  }}
+                  className="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 border border-slate-200 transition-colors text-left cursor-pointer"
+                >
+                  {chipText}
+                </button>
+              ))}
+            </div>
+
             {/* Autocomplete Dropdown */}
             {isFocused && (filteredSuggestions.length > 0 || taxonomyResults.length > 0) && (
               <div
                 ref={dropdownRef}
-                className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 text-left overflow-hidden divide-y divide-slate-100"
+                className="bg-white border border-slate-200 rounded-xl shadow-lg text-left overflow-hidden divide-y divide-slate-100 mt-2"
               >
                 <div className="p-2 max-h-56 overflow-y-auto">
                   {filteredSuggestions.map((sug, idx) => (
@@ -528,7 +556,7 @@ export default function Home() {
               </div>
             )}
 
-            <div className="mt-2 text-left">
+            <div className="pt-1">
               <QueryValidationComponent
                 query={query}
                 compact={true}
@@ -540,42 +568,93 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Curated Prompt Cards (2x2 Clean Grid) */}
-          <div className="text-left mt-8">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-3">
-              Explore Common Clinical Scenarios:
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {featuredQueries.map((item, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    setQuery(item.query);
-                    handleSearch(item.query);
-                  }}
-                  className="p-3.5 rounded-xl bg-white border border-slate-200/80 hover:border-indigo-300 hover:shadow-xs cursor-pointer transition-all flex items-start gap-3 group"
+          {/* "See How We Answer" Live Preview Card (Eliminates the Empty Feeling) */}
+          <div className="bg-gradient-to-br from-indigo-50/70 via-white to-blue-50/70 rounded-3xl p-4 sm:p-5 border border-indigo-100 shadow-xs space-y-3 text-left">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white px-2 py-0.5 rounded-md">
+                  Live Preview
+                </span>
+                <span className="text-xs font-bold text-slate-800">
+                  How AegisMed answers real questions
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-indigo-100 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setPreviewTab("patient")}
+                  className={`px-2.5 py-0.5 rounded-md font-bold transition-all ${
+                    previewTab === "patient"
+                      ? "bg-indigo-100 text-indigo-800"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`}
                 >
-                  <span className="text-lg shrink-0 mt-0.5">{item.icon}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-                        {item.title}
-                      </span>
-                      <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">
-                        {item.tag}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                      {item.subtitle}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                  Patient Summary
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewTab("clinician")}
+                  className={`px-2.5 py-0.5 rounded-md font-bold transition-all ${
+                    previewTab === "clinician"
+                      ? "bg-indigo-100 text-indigo-800"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  Clinical Evidence
+                </button>
+              </div>
             </div>
+
+            {/* Sample Question Bar */}
+            <div className="bg-white/90 p-2.5 rounded-xl border border-indigo-100 text-xs text-slate-700 flex items-center gap-2 shadow-2xs">
+              <span className="font-bold text-indigo-700">Example Question:</span>
+              <span className="italic text-slate-600">&ldquo;Can I take Paracetamol (Tylenol) if I am on Lisinopril for high blood pressure?&rdquo;</span>
+            </div>
+
+            {/* Preview Answer Box */}
+            {previewTab === "patient" ? (
+              <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    <span>✓</span> Generally Safe with Monitoring
+                  </span>
+                  <span className="text-[10px] text-slate-500">6th-grade plain English</span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  <strong>Direct Answer:</strong> Yes, Paracetamol is typically the safest everyday pain reliever when you take blood pressure medicine like Lisinopril. Unlike Ibuprofen or Naproxen (NSAIDs), it will not interfere with your blood pressure control or stress your kidneys.
+                </p>
+                <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 text-[11px] text-slate-600 space-y-1">
+                  <div className="font-bold text-slate-700 flex items-center gap-1">
+                    <span>💬</span> 2 Questions to ask your doctor or pharmacist:
+                  </div>
+                  <ul className="list-disc list-inside text-slate-500 space-y-0.5">
+                    <li>&ldquo;What is my safe maximum daily limit of paracetamol?&rdquo;</li>
+                    <li>&ldquo;Are any of my other daily pills already combined with acetaminophen?&rdquo;</li>
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200">
+                    <span>🩺</span> Oxford CEBM Level 1 Evidence
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-mono">DDI Sweep &bull; Renal cutoffs</span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-mono text-[11px]">
+                  <strong>Therapeutic Consensus:</strong> Acetaminophen is preferred over NSAIDs (such as ibuprofen or naproxen) in patients receiving ACEi/ARB therapy. NSAIDs inhibit renal prostaglandin synthesis, blunting the antihypertensive efficacy of Lisinopril and elevating AKI / hyperkalemia risk (ACC/AHA 2024 Guidelines, Section 7.4).
+                </p>
+                <div className="text-[10px] text-slate-400 font-mono border-t border-slate-100 pt-1.5 flex items-center justify-between">
+                  <span>Guideline: ACC/AHA Hypertension &bull; FDA DDI Registry</span>
+                  <span>Dosage Ceiling: 3,000 mg/day max</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Minimalist Trust Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-xs text-slate-500">
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-xs text-slate-500">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Zero-Hallucination Guardrails</span>
