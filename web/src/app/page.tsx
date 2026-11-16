@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { UserMode, SearchResponse } from "@/lib/types";
 import { searchClinicalRAG, searchClinicalTaxonomy, fetchTaxonomyStats, TaxonomyEntity } from "@/lib/api";
 import { ClinicianView } from "@/components/clinician-view";
@@ -55,6 +55,65 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hasTopic = Boolean(result || patientResult || loading);
+
+  // First-time user friendly guidance & animated curiosity placeholder
+  const [showGuideBar, setShowGuideBar] = useState(true);
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
+
+  const patientPrompts = useMemo(() => [
+    "Why do my hands feel cold even when it's warm?",
+    "Can I take paracetamol with blood pressure pills?",
+    "Why am I getting headaches every afternoon?",
+    "What should I ask my doctor about prediabetes?",
+    "Is it normal to feel dizzy right after standing up?"
+  ], []);
+
+  const clinicianPrompts = useMemo(() => [
+    "First-line medication options for Stage 2 hypertension with albuminuria",
+    "SGLT2 inhibitor and GLP-1 receptor agonist cardiorenal trial endpoints",
+    "Paxlovid CYP3A4 drug interactions and renal cutoffs (eGFR <30)",
+    "GINA guidelines on SMART regimen for mild-to-moderate asthma"
+  ], []);
+
+  // Smooth rotating placeholder that pauses on full question
+  useEffect(() => {
+    if (query.trim().length > 0) {
+      setAnimatedPlaceholder("");
+      return;
+    }
+
+    const prompts = mode === "patient" ? patientPrompts : clinicianPrompts;
+    let promptIdx = 0;
+    let charIdx = 0;
+    let isDeleting = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      const current = prompts[promptIdx % prompts.length];
+      if (!isDeleting) {
+        setAnimatedPlaceholder(current.substring(0, charIdx + 1));
+        charIdx++;
+        if (charIdx === current.length) {
+          isDeleting = true;
+          timeoutId = setTimeout(tick, 2500);
+          return;
+        }
+      } else {
+        setAnimatedPlaceholder(current.substring(0, charIdx - 1));
+        charIdx--;
+        if (charIdx === 0) {
+          isDeleting = false;
+          promptIdx++;
+          timeoutId = setTimeout(tick, 500);
+          return;
+        }
+      }
+      timeoutId = setTimeout(tick, isDeleting ? 20 : 40);
+    };
+
+    timeoutId = setTimeout(tick, 150);
+    return () => clearTimeout(timeoutId);
+  }, [mode, query, patientPrompts, clinicianPrompts]);
 
   // Fetch taxonomy stats on mount
   useEffect(() => {
@@ -322,6 +381,59 @@ export default function Home() {
 
           {/* Floating Search Input Card */}
           <div className="relative mb-8 text-left">
+            {/* Simple, Friendly 3-Step Guide for First-Time Users */}
+            {showGuideBar && (
+              <div className="mb-4 text-left animate-fade-in">
+                <div className="relative bg-gradient-to-r from-indigo-50/70 via-slate-50 to-blue-50/70 border border-indigo-100 rounded-2xl p-3.5 shadow-2xs">
+                  <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-indigo-100/60">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px]">✨</span>
+                      <span><b>How AegisMed helps you</b> &mdash; Simple, safe, and private</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowGuideBar(false)}
+                      className="text-[11px] text-slate-400 hover:text-slate-600 font-medium transition-colors cursor-pointer"
+                    >
+                      ✕ got it
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div className="flex items-start gap-2.5 bg-white/90 p-2.5 rounded-xl border border-slate-100 shadow-2xs">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold shrink-0">1</span>
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">Ask in your own words</div>
+                        <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                          Type a symptom, a pill name, or what you feel. No medical jargon needed.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2.5 bg-white/90 p-2.5 rounded-xl border border-slate-100 shadow-2xs">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-100 text-blue-700 text-xs font-bold shrink-0">2</span>
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">Choose who it&apos;s for</div>
+                        <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                          Toggle <b>Patient</b> for plain everyday talk, or <b>Clinician</b> for doctor-level trial data.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2.5 bg-white/90 p-2.5 rounded-xl border border-slate-100 shadow-2xs">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold shrink-0">3</span>
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">Get facts you can trust</div>
+                        <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                          Clear explanations backed by real medical studies and questions for your doctor.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -341,9 +453,11 @@ export default function Home() {
                 onFocus={() => setIsFocused(true)}
                 onKeyDown={handleKeyDown}
                 placeholder={
-                  mode === "patient"
-                    ? "Ask in plain English (e.g. Stage 2 high blood pressure with kidney protection)..."
-                    : "Enter diagnostic query, GDMT titration, or contraindication check..."
+                  animatedPlaceholder
+                    ? `Try asking: "${animatedPlaceholder}"`
+                    : mode === "patient"
+                      ? "Ask in plain English (e.g. Why do my hands feel cold even when it's warm?)..."
+                      : "Enter clinical query, GDMT titration, or contraindication check..."
                 }
                 className="w-full h-full pl-3.5 pr-36 bg-transparent text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none"
               />
