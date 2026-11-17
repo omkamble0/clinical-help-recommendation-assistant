@@ -1649,6 +1649,20 @@ def process_clinical_query(query: str, user_mode: UserMode) -> SearchResponse:
     """
     start_time = time.time()
 
+    # Step -1: Phase 4 Cloud Caching - Check Redis Cloud / In-Memory Semantic Cache
+    cache_key = None
+    try:
+        from app.core.cloud_cache import cloud_cache_service
+        mode_str = user_mode.value if hasattr(user_mode, "value") else str(user_mode).lower()
+        cache_key = cloud_cache_service.generate_key("query", query, mode=mode_str)
+        cached_data = cloud_cache_service.get(cache_key)
+        if cached_data is not None:
+            cached_resp = SearchResponse(**cached_data)
+            cached_resp.latency_ms = max(1, int((time.time() - start_time) * 1000))
+            return cached_resp
+    except Exception:
+        pass
+
     # Step 0: Pre-Retrieval 3-Layer Query Typo Validation & Concept Grounding
     validation_info: Optional[ValidationResultSchema] = None
     effective_query = query
@@ -1780,7 +1794,7 @@ def process_clinical_query(query: str, user_mode: UserMode) -> SearchResponse:
     except Exception as e:
         logger.debug(f"Audit log notice: {e}")
 
-    return SearchResponse(
+    response_obj = SearchResponse(
         query=query,
         user_mode=user_mode,
         is_emergency=bool(triage_alert and (triage_alert.is_emergency or getattr(triage_alert.urgency, 'value', '') == 'emergency_911')),
@@ -1806,6 +1820,15 @@ def process_clinical_query(query: str, user_mode: UserMode) -> SearchResponse:
         crag_grade=crag_res,
         grounding_audit=grounding_res
     )
+
+    if cache_key:
+        try:
+            from app.core.cloud_cache import cloud_cache_service
+            cloud_cache_service.set(cache_key, response_obj.model_dump())
+        except Exception:
+            pass
+
+    return response_obj
 
 # Alias for search router endpoint
 execute_rag_pipeline = process_clinical_query

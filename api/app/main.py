@@ -31,6 +31,7 @@ from app.routes.taxonomy import router as taxonomy_router  # type: ignore # pyre
 from app.routes.audit import router as audit_router  # type: ignore # pyrefly: ignore
 from app.routes.clinical_production import router as clinical_production_router  # type: ignore # pyrefly: ignore
 from app.routes.cloud_vector import router as cloud_vector_router  # type: ignore # pyrefly: ignore
+from app.routes.cloud_cache import router as cloud_cache_router  # type: ignore # pyrefly: ignore
 
 logger = setup_structured_logging(log_level=settings.LOG_LEVEL)
 
@@ -81,6 +82,7 @@ app.include_router(encyclopedia_router)
 app.include_router(taxonomy_router)
 app.include_router(audit_router)
 app.include_router(cloud_vector_router)
+app.include_router(cloud_cache_router)
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
