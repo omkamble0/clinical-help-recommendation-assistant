@@ -118,3 +118,26 @@ body {
 .animate-pulse-glow {
   animation: pulseGlow 2.5s infinite;
 }
+
+/* Dedicated Clean Print Styles for 1-Page Doctor Brief */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+  }
+
+  header, nav, form, .no-print, button {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+}
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { DoctorQuestion } from "@/lib/types";
-import { CheckCircle2, Circle, Stethoscope, Copy, Check, Sparkles, Activity, ShieldAlert, Zap, Info } from "lucide-react";
+import { CheckCircle2, Circle, Stethoscope, Copy, Check, Sparkles, Activity, ShieldAlert, Zap, Info, Printer } from "lucide-react";
 
 interface DoctorChecklistProps {
   questions: DoctorQuestion[];
@@ -89,23 +89,37 @@ export function DoctorChecklist({ questions }: DoctorChecklistProps) {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleCopyQuestions}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-2xs"
-        >
-          {copied ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-emerald-700">Copied to Clipboard!</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-3.5 h-3.5 text-slate-500" />
-              <span>Copy Checklist</span>
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") window.print();
+            }}
+            className="no-print flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+            title="Print 1-Page Summary for Doctor"
+          >
+            <Printer className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="hidden sm:inline">Print Summary</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopyQuestions}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-2xs"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-emerald-700">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-slate-500" />
+                <span>Copy Checklist</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3">
