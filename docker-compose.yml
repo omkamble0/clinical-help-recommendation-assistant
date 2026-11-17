@@ -1,25 +1,86 @@
 version: '3.8'
 
 services:
+  # ============================================================================
+  # 1. AegisMed Clinical Backend API (FastAPI + RAG Engine)
+  # ============================================================================
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
+    image: aegismed-api:latest
+    container_name: aegismed-api
     ports:
       - "8000:8000"
     environment:
       - PORT=8000
+      - ENVIRONMENT=production
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - REDIS_URL=redis://redis:6379/0
+      - CORS_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
+    networks:
+      - aegismed-network
 
+  # ============================================================================
+  # 2. AegisMed Web Frontend (Next.js 14 Static Export + Nginx Alpine)
+  # ============================================================================
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
+    image: aegismed-web:latest
+    container_name: aegismed-web
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
+    networks:
+      - aegismed-network
+
+  # ============================================================================
+  # 3. Redis In-Memory Cache (Semantic Query Cache & Rate Limiting)
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: aegismed-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - aegismed-network
+
+networks:
+  aegismed-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local

@@ -55,6 +55,16 @@ app.add_middleware(
 async def root_prometheus_metrics():
     return PlainTextResponse(metrics.export_prometheus(), media_type="text/plain; version=0.0.4")
 
+# Root Healthcheck for Cloud Load Balancers & Container Probes
+@app.get("/health", tags=["Observability"])
+async def root_health_check():
+    return {
+        "status": "healthy",
+        "service": "AegisMed Clinical Truth Engine",
+        "version": "2.0.0",
+        "knowledge_base": "Oxford CEBM Level 1-5 Indexed"
+    }
+
 # Include production layered architecture routes
 app.include_router(clinical_production_router)
 
