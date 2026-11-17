@@ -396,277 +396,344 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ================= LANDING HERO (Intent-Driven, Warm & Clear) ================= */}
+      {/* ================= LANDING HERO (Balanced 2-Column Desktop Grid) ================= */}
       {!hasTopic && primaryView === "assistant" ? (
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-16 text-center animate-fade-in space-y-6">
-          {/* Welcoming Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs font-semibold shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-            <span>What would you like to check today?</span>
-          </div>
-
-          {/* Value-Driven Headline */}
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Clear medical answers you can <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-teal-600 bg-clip-text text-transparent">
-                safely trust and understand.
-              </span>
-            </h1>
-
-            <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-              No scary rabbit holes or confusing medical jargon. AegisMed checks your questions against 600 peer-reviewed guidelines so you know exactly what to do next.
-            </p>
-          </div>
-
-          {/* 3 Intent Pathways (Solves "What is this website for?") */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-            {(["symptoms", "meds", "conditions"] as const).map((key) => {
-              const cfg = pathwayConfigs[key];
-              const isSelected = activePathway === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    setActivePathway(key);
-                    inputRef.current?.focus();
-                  }}
-                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? "bg-white border-2 border-indigo-600 shadow-sm scale-[1.01]"
-                      : "bg-white/80 border-slate-200/90 shadow-2xs hover:border-slate-300 hover:bg-white"
-                  }`}
-                >
-                  <div className="text-2xl mb-1.5">{cfg.icon}</div>
-                  <div className="font-bold text-slate-900 text-xs sm:text-sm">{cfg.title}</div>
-                  <p className="text-[11px] text-slate-500 mt-1 leading-snug line-clamp-2">
-                    {cfg.description}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Active Conversational Input Box */}
-          <div className="bg-white rounded-3xl p-3 sm:p-4 border border-slate-200/90 shadow-md shadow-slate-100/60 space-y-3 text-left">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSearch();
-              }}
-              className="relative flex items-center w-full h-14 sm:h-16 bg-slate-50 rounded-2xl border border-slate-200 focus-within:border-indigo-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-indigo-50 transition-all p-1.5"
-            >
-              <div className="pl-3 pr-2 text-xl select-none">
-                {pathwayConfigs[activePathway].icon}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 animate-fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Intent, Search, Examples (lg:col-span-7) */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              {/* Welcoming Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs font-semibold shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Health guidance made simple</span>
               </div>
 
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onKeyDown={handleKeyDown}
-                placeholder={pathwayConfigs[activePathway].placeholder}
-                className="w-full h-full pl-2 pr-28 sm:pr-36 bg-transparent text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm outline-none"
-              />
+              {/* Simple, Humble Headline */}
+              <div className="space-y-2.5">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                  Everyday health questions, <br className="hidden sm:inline" />
+                  <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-teal-600 bg-clip-text text-transparent">
+                    explained clearly.
+                  </span>
+                </h1>
 
-              <div className="absolute right-2 flex items-center gap-1.5">
-                {query && (
+                <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl">
+                  Simple, reliable information on symptoms, everyday medicines, and lab tests — helping you understand your health and prepare for conversations with your doctor.
+                </p>
+              </div>
+
+              {/* 3 Intent Pathways (Solves "What is this website for?") */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left">
+                {(["symptoms", "meds", "conditions"] as const).map((key) => {
+                  const cfg = pathwayConfigs[key];
+                  const isSelected = activePathway === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        setActivePathway(key);
+                        inputRef.current?.focus();
+                      }}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-white border-2 border-indigo-600 shadow-sm scale-[1.01]"
+                          : "bg-white/80 border-slate-200/90 shadow-2xs hover:border-slate-300 hover:bg-white"
+                      }`}
+                    >
+                      <div className="text-2xl mb-1.5">{cfg.icon}</div>
+                      <div className="font-bold text-slate-900 text-xs sm:text-sm">{cfg.title}</div>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-snug line-clamp-2">
+                        {cfg.description}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Active Conversational Input Box */}
+              <div className="bg-white rounded-3xl p-3 sm:p-4 border border-slate-200/90 shadow-md shadow-slate-100/60 space-y-3 text-left">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                  }}
+                  className="relative flex items-center w-full h-14 sm:h-16 bg-slate-50 rounded-2xl border border-slate-200 focus-within:border-indigo-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-indigo-50 transition-all p-1.5"
+                >
+                  <div className="pl-3 pr-2 text-xl select-none">
+                    {pathwayConfigs[activePathway].icon}
+                  </div>
+
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onFocus={() => setIsFocused(true)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={pathwayConfigs[activePathway].placeholder}
+                    className="w-full h-full pl-2 pr-28 sm:pr-36 bg-transparent text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm outline-none"
+                  />
+
+                  <div className="absolute right-2 flex items-center gap-1.5">
+                    {query && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQuery("");
+                          inputRef.current?.focus();
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading || !query.trim()}
+                      className="px-4 sm:px-5 py-2.5 h-10 sm:h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm tracking-wide transition-all shadow-xs disabled:opacity-40 flex items-center gap-1.5 shrink-0"
+                    >
+                      {loading ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <span>Check</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Quick 1-Click Prompt Chips */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5 px-1">
+                  <span className="text-[11px] font-semibold text-slate-400 mr-1">Tap an example:</span>
+                  {pathwayConfigs[activePathway].chips.map((chipText, cIdx) => (
+                    <button
+                      key={cIdx}
+                      type="button"
+                      onClick={() => {
+                        setQuery(chipText);
+                        handleSearch(chipText);
+                      }}
+                      className="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 border border-slate-200 transition-colors text-left cursor-pointer"
+                    >
+                      {chipText}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Autocomplete Dropdown */}
+                {isFocused && (filteredSuggestions.length > 0 || taxonomyResults.length > 0) && (
+                  <div
+                    ref={dropdownRef}
+                    className="bg-white border border-slate-200 rounded-xl shadow-lg text-left overflow-hidden divide-y divide-slate-100 mt-2"
+                  >
+                    <div className="p-2 max-h-56 overflow-y-auto">
+                      {filteredSuggestions.map((sug, idx) => (
+                        <div
+                          key={sug.id}
+                          onClick={() => handleSelectSuggestion(sug)}
+                          className={`px-3 py-2 rounded-lg cursor-pointer transition-colors flex items-center justify-between gap-3 ${
+                            selectedIndex === idx ? "bg-indigo-50" : "hover:bg-slate-50"
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-slate-900 truncate">
+                                {sug.label}
+                              </span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                                {sug.healthBody}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                              {sug.description}
+                            </p>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-1">
+                  <QueryValidationComponent
+                    query={query}
+                    compact={true}
+                    onApplyCorrection={(corrected) => {
+                      setQuery(corrected);
+                      handleSearch(corrected);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Minimalist Trust Badges */}
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 text-xs text-slate-500">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Grounded in clinical guidelines</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-indigo-600" />
+                  <span>Clear, everyday language</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Lock className="w-4 h-4 text-slate-500" />
+                  <span>Private & anonymous to use</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Right Column: Interactive Live Preview & Popular Topics (lg:col-span-5) */}
+            <div className="lg:col-span-5 space-y-4 pt-1">
+              {/* "See How We Answer" Live Preview Card */}
+              <div className="bg-gradient-to-br from-indigo-50/70 via-white to-blue-50/70 rounded-3xl p-4 sm:p-5 border border-indigo-100 shadow-xs space-y-3 text-left">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white px-2 py-0.5 rounded-md">
+                      Live Preview
+                    </span>
+                    <span className="text-xs font-bold text-slate-800">
+                      How AegisMed answers questions
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-indigo-100 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTab("patient")}
+                      className={`px-2.5 py-0.5 rounded-md font-bold transition-all ${
+                        previewTab === "patient"
+                          ? "bg-indigo-100 text-indigo-800"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Patient Summary
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTab("clinician")}
+                      className={`px-2.5 py-0.5 rounded-md font-bold transition-all ${
+                        previewTab === "clinician"
+                          ? "bg-indigo-100 text-indigo-800"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Clinical Evidence
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sample Question Bar */}
+                <div className="bg-white/90 p-2.5 rounded-xl border border-indigo-100 text-xs text-slate-700 flex items-center gap-2 shadow-2xs">
+                  <span className="font-bold text-indigo-700 shrink-0">Example:</span>
+                  <span className="italic text-slate-600 truncate">&ldquo;Can I take Paracetamol with Lisinopril for high blood pressure?&rdquo;</span>
+                </div>
+
+                {/* Preview Answer Box */}
+                {previewTab === "patient" ? (
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5 animate-fade-in">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                        <span>✓</span> Generally Safe with Monitoring
+                      </span>
+                      <span className="text-[10px] text-slate-500">Everyday plain English</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      <strong>Direct Answer:</strong> Yes, Paracetamol is typically the safest everyday pain reliever when taking blood pressure medicine like Lisinopril. Unlike Ibuprofen or Naproxen (NSAIDs), it will not interfere with blood pressure control or stress kidneys.
+                    </p>
+                    <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 text-[11px] text-slate-600 space-y-1">
+                      <div className="font-bold text-slate-700 flex items-center gap-1">
+                        <span>💬</span> 2 Questions to ask your doctor or pharmacist:
+                      </div>
+                      <ul className="list-disc list-inside text-slate-500 space-y-0.5">
+                        <li>&ldquo;What is my safe maximum daily limit of paracetamol?&rdquo;</li>
+                        <li>&ldquo;Are any of my other daily pills already combined with acetaminophen?&rdquo;</li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5 animate-fade-in">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200">
+                        <span>🩺</span> Oxford CEBM Level 1 Evidence
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">DDI Sweep &bull; Renal cutoffs</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed font-mono text-[11px]">
+                      <strong>Therapeutic Consensus:</strong> Acetaminophen is preferred over NSAIDs (such as ibuprofen or naproxen) in patients receiving ACEi/ARB therapy. NSAIDs inhibit renal prostaglandin synthesis, blunting the antihypertensive efficacy of Lisinopril and elevating AKI / hyperkalemia risk (ACC/AHA 2024 Guidelines, Section 7.4).
+                    </p>
+                    <div className="text-[10px] text-slate-400 font-mono border-t border-slate-100 pt-1.5 flex items-center justify-between">
+                      <span>Guideline: ACC/AHA Hypertension &bull; FDA DDI Registry</span>
+                      <span>Dosage Ceiling: 3,000 mg/day max</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Popular Topics in Library Card */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-2.5 text-left">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800">Popular Topics in Library</span>
+                  <button
+                    type="button"
+                    onClick={() => setPrimaryView("wiki")}
+                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+                  >
+                    <span>Browse 600 guidelines</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="divide-y divide-slate-100">
                   <button
                     type="button"
                     onClick={() => {
-                      setQuery("");
-                      inputRef.current?.focus();
+                      setQuery("Essential Hypertension");
+                      handleSearch("Essential Hypertension");
                     }}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+                    className="w-full py-2 flex items-center justify-between text-left hover:text-indigo-600 group transition-colors cursor-pointer"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading || !query.trim()}
-                  className="px-4 sm:px-5 py-2.5 h-10 sm:h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm tracking-wide transition-all shadow-xs disabled:opacity-40 flex items-center gap-1.5 shrink-0"
-                >
-                  {loading ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <span>Check</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-
-            {/* Quick 1-Click Prompt Chips */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5 px-1">
-              <span className="text-[11px] font-semibold text-slate-400 mr-1">Tap an example:</span>
-              {pathwayConfigs[activePathway].chips.map((chipText, cIdx) => (
-                <button
-                  key={cIdx}
-                  type="button"
-                  onClick={() => {
-                    setQuery(chipText);
-                    handleSearch(chipText);
-                  }}
-                  className="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 border border-slate-200 transition-colors text-left cursor-pointer"
-                >
-                  {chipText}
-                </button>
-              ))}
-            </div>
-
-            {/* Autocomplete Dropdown */}
-            {isFocused && (filteredSuggestions.length > 0 || taxonomyResults.length > 0) && (
-              <div
-                ref={dropdownRef}
-                className="bg-white border border-slate-200 rounded-xl shadow-lg text-left overflow-hidden divide-y divide-slate-100 mt-2"
-              >
-                <div className="p-2 max-h-56 overflow-y-auto">
-                  {filteredSuggestions.map((sug, idx) => (
-                    <div
-                      key={sug.id}
-                      onClick={() => handleSelectSuggestion(sug)}
-                      className={`px-3 py-2 rounded-lg cursor-pointer transition-colors flex items-center justify-between gap-3 ${
-                        selectedIndex === idx ? "bg-indigo-50" : "hover:bg-slate-50"
-                      }`}
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-900 truncate">
-                            {sug.label}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                            {sug.healthBody}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                          {sug.description}
-                        </p>
-                      </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <div>
+                      <div className="text-xs font-semibold text-slate-800 group-hover:text-indigo-600">Essential High Blood Pressure</div>
+                      <div className="text-[11px] text-slate-500">Blood pressure stages and everyday lifestyle guidance</div>
                     </div>
-                  ))}
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery("Type 2 Diabetes Mellitus");
+                      handleSearch("Type 2 Diabetes Mellitus");
+                    }}
+                    className="w-full py-2 flex items-center justify-between text-left hover:text-indigo-600 group transition-colors cursor-pointer"
+                  >
+                    <div>
+                      <div className="text-xs font-semibold text-slate-800 group-hover:text-indigo-600">Type 2 Diabetes &amp; HbA1c</div>
+                      <div className="text-[11px] text-slate-500">Understanding blood sugar tests and target ranges</div>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery("Mild to Moderate Asthma");
+                      handleSearch("Mild to Moderate Asthma");
+                    }}
+                    className="w-full py-2 flex items-center justify-between text-left hover:text-indigo-600 group transition-colors cursor-pointer"
+                  >
+                    <div>
+                      <div className="text-xs font-semibold text-slate-800 group-hover:text-indigo-600">Asthma Action Guidance</div>
+                      <div className="text-[11px] text-slate-500">Inhaler techniques and daily symptom tracking</div>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" />
+                  </button>
                 </div>
-              </div>
-            )}
-
-            <div className="pt-1">
-              <QueryValidationComponent
-                query={query}
-                compact={true}
-                onApplyCorrection={(corrected) => {
-                  setQuery(corrected);
-                  handleSearch(corrected);
-                }}
-              />
-            </div>
-          </div>
-
-          {/* "See How We Answer" Live Preview Card (Eliminates the Empty Feeling) */}
-          <div className="bg-gradient-to-br from-indigo-50/70 via-white to-blue-50/70 rounded-3xl p-4 sm:p-5 border border-indigo-100 shadow-xs space-y-3 text-left">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white px-2 py-0.5 rounded-md">
-                  Live Preview
-                </span>
-                <span className="text-xs font-bold text-slate-800">
-                  How AegisMed answers real questions
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-indigo-100 text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => setPreviewTab("patient")}
-                  className={`px-2.5 py-0.5 rounded-md font-bold transition-all ${
-                    previewTab === "patient"
-                      ? "bg-indigo-100 text-indigo-800"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Patient Summary
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewTab("clinician")}
-                  className={`px-2.5 py-0.5 rounded-md font-bold transition-all ${
-                    previewTab === "clinician"
-                      ? "bg-indigo-100 text-indigo-800"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Clinical Evidence
-                </button>
               </div>
             </div>
-
-            {/* Sample Question Bar */}
-            <div className="bg-white/90 p-2.5 rounded-xl border border-indigo-100 text-xs text-slate-700 flex items-center gap-2 shadow-2xs">
-              <span className="font-bold text-indigo-700">Example Question:</span>
-              <span className="italic text-slate-600">&ldquo;Can I take Paracetamol (Tylenol) if I am on Lisinopril for high blood pressure?&rdquo;</span>
-            </div>
-
-            {/* Preview Answer Box */}
-            {previewTab === "patient" ? (
-              <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5 animate-fade-in">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    <span>✓</span> Generally Safe with Monitoring
-                  </span>
-                  <span className="text-[10px] text-slate-500">6th-grade plain English</span>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  <strong>Direct Answer:</strong> Yes, Paracetamol is typically the safest everyday pain reliever when you take blood pressure medicine like Lisinopril. Unlike Ibuprofen or Naproxen (NSAIDs), it will not interfere with your blood pressure control or stress your kidneys.
-                </p>
-                <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 text-[11px] text-slate-600 space-y-1">
-                  <div className="font-bold text-slate-700 flex items-center gap-1">
-                    <span>💬</span> 2 Questions to ask your doctor or pharmacist:
-                  </div>
-                  <ul className="list-disc list-inside text-slate-500 space-y-0.5">
-                    <li>&ldquo;What is my safe maximum daily limit of paracetamol?&rdquo;</li>
-                    <li>&ldquo;Are any of my other daily pills already combined with acetaminophen?&rdquo;</li>
-                  </ul>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5 animate-fade-in">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200">
-                    <span>🩺</span> Oxford CEBM Level 1 Evidence
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-mono">DDI Sweep &bull; Renal cutoffs</span>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed font-mono text-[11px]">
-                  <strong>Therapeutic Consensus:</strong> Acetaminophen is preferred over NSAIDs (such as ibuprofen or naproxen) in patients receiving ACEi/ARB therapy. NSAIDs inhibit renal prostaglandin synthesis, blunting the antihypertensive efficacy of Lisinopril and elevating AKI / hyperkalemia risk (ACC/AHA 2024 Guidelines, Section 7.4).
-                </p>
-                <div className="text-[10px] text-slate-400 font-mono border-t border-slate-100 pt-1.5 flex items-center justify-between">
-                  <span>Guideline: ACC/AHA Hypertension &bull; FDA DDI Registry</span>
-                  <span>Dosage Ceiling: 3,000 mg/day max</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Minimalist Trust Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-xs text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Zero-Hallucination Guardrails</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-indigo-600" />
-              <span>Oxford CEBM Level 1-5 Ranking</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Lock className="w-4 h-4 text-slate-600" />
-              <span>HIPAA Safe Harbor De-identification</span>
-            </span>
           </div>
         </section>
       ) : null}
