@@ -53,6 +53,7 @@ Thumbs.db
 
 # Local Vector Storage & Caches
 api/app/data/qdrant_storage/
+api/app/data/cloud_briefs/*.json
 *.db
 *.sqlite
 *.sqlite3
