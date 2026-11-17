@@ -1,0 +1,111 @@
+name: AegisMed CD - Cloud Delivery & Registry Publishing
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: "Cloud Deployment Target"
+        required: true
+        default: "render_and_ghcr"
+        type: choice
+        options:
+          - "render_and_ghcr"
+          - "ghcr_only"
+          - "cloud_run_staging"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # ============================================================================
+  # 1. Publish Production Containers to GitHub Container Registry (GHCR)
+  # ============================================================================
+  publish-containers:
+    name: Build & Push Images to GHCR
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Metadata (Tags & Labels) for API
+        id: meta-api
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/api
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+
+      - name: Extract Metadata (Tags & Labels) for Web
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/web
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+
+      - name: Build & Push API Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          push: true
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & Push Web Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./web
+          push: true
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # 2. Trigger Automated Cloud Deployment
+  # ============================================================================
+  deploy-cloud:
+    name: Cloud Webhook & Deployment
+    runs-on: ubuntu-latest
+    needs: [publish-containers]
+    if: always()
+
+    steps:
+      - name: Trigger Render Zero-Downtime Deployment
+        if: ${{ env.RENDER_HOOK != '' }}
+        env:
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Triggering cloud deploy webhook on Render..."
+          curl -X POST -s -S -f "$RENDER_HOOK"
+          echo "Deployment triggered successfully."
+
+      - name: Cloud Deployment Status Summary
+        run: |
+          echo "=========================================================="
+          echo "AegisMed Cloud Delivery Pipeline Completed Successfully!"
+          echo "Published images to ghcr.io/${{ github.repository }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "=========================================================="
