@@ -28,6 +28,8 @@ COMMON_ENGLISH_WORDS: Set[str] = {
     "high", "low", "normal", "fast", "slow", "deep", "shallow", "hard", "soft", "free", "clear",
     "true", "false", "real", "pure", "dry", "wet", "hot", "cold", "warm", "cool", "sore", "dull",
     "sharp", "burning", "aching", "constant", "sudden", "gradual", "frequent", "rare", "common",
+    "crushing", "squeezing", "radiating", "throbbing", "stabbing", "cramping", "tingling", "numbness",
+    "heaviness", "swelling", "flushing", "fluttering", "tightness", "pressure",
     # Clinical verbs & actions
     "treat", "treats", "treated", "treating", "treatment", "treatments",
     "cure", "cures", "cured", "curing", "care", "cares", "cared", "caring",

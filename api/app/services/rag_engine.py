@@ -1673,8 +1673,8 @@ def process_clinical_query(query: str, user_mode: UserMode) -> SearchResponse:
             issues=[]
         )
 
-    # Step 0.5: Deterministic Tier-1 Safety & Clinical Acuity Assessment (Non-blocking)
-    triage_alert = evaluate_safety_guardrails(effective_query)
+    # Step 0.5: Deterministic Tier-1 Safety & Clinical Acuity Assessment (Check both raw query and normalized query)
+    triage_alert = evaluate_safety_guardrails(query) or evaluate_safety_guardrails(effective_query)
 
     # Step 1: Stage 1 Inbound Query Disambiguation & Entity Parsing (using clean/corrected query)
     parsed_analysis = parse_clinical_query(effective_query)
@@ -1695,15 +1695,6 @@ def process_clinical_query(query: str, user_mode: UserMode) -> SearchResponse:
         patient_sug,
         clinician_sug
     ) = generate_response(effective_query, sources, user_mode, parsed_analysis)
-
-    # Prepend non-blocking Clinical Acuity Advisory banner if flagged by Tier 1
-    if triage_alert:
-        acuity_banner = (
-            f"> ⚠️ **{triage_alert.headline}**\n"
-            f"> {triage_alert.critical_guidance}\n"
-            f"> *Red-flag indicators requiring prompt medical evaluation:* {', '.join(triage_alert.red_flag_symptoms[:3])}\n\n"
-        )
-        answer = acuity_banner + answer
 
     # Step 5: Evaluate Grounding & Confidence
     confidence, citations = evaluate_grounding_and_confidence(answer, sources)
@@ -1738,6 +1729,15 @@ def process_clinical_query(query: str, user_mode: UserMode) -> SearchResponse:
     aud_str = "doctor" if user_mode == UserMode.PROFESSIONAL else "patient"
     answer, aud_audit = enforce_audience_contract(answer, aud_str)
     reading_level = aud_audit.get("reading_level_label", reading_level)
+
+    # Prepend Clinical Acuity Advisory banner if flagged by Tier 1
+    if triage_alert and not answer.startswith("> ⚠️"):
+        acuity_banner = (
+            f"> ⚠️ **{triage_alert.headline}**\n"
+            f"> {triage_alert.critical_guidance}\n"
+            f"> *Red-flag indicators requiring prompt medical evaluation:* {', '.join(triage_alert.red_flag_symptoms[:3])}\n\n"
+        )
+        answer = acuity_banner + answer
 
     tools_res = {}
     if parsed_analysis.entities.interventions:
@@ -1783,7 +1783,7 @@ def process_clinical_query(query: str, user_mode: UserMode) -> SearchResponse:
     return SearchResponse(
         query=query,
         user_mode=user_mode,
-        is_emergency=False,
+        is_emergency=bool(triage_alert and (triage_alert.is_emergency or getattr(triage_alert.urgency, 'value', '') == 'emergency_911')),
         triage_alert=triage_alert,
         validation=validation_info,
         query_analysis=parsed_analysis,
