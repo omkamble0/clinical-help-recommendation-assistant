@@ -15,7 +15,7 @@ All guidelines conform to Oxford CEBM Level 1a/1b evidence standards.
 """
 
 import re
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from app.models.enums import EvidenceLevel
 from app.models.schemas import SourceDocument
 

@@ -6,7 +6,7 @@ Oxford CEBM hierarchy mathematical weighting, and strict clinical domain cluster
 
 import math
 import re
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Any, Tuple, Optional, Set
 from app.models.schemas import SourceDocument
 from app.models.enums import EvidenceLevel
 

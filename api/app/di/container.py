@@ -3,7 +3,7 @@ Dependency Injection Container and FastAPI Providers for AegisMed.
 Enables pluggable, testable, and replaceable service dependencies across API routes.
 """
 
-from typing import Optional
+from typing import Optional, Any
 from fastapi import Depends
 
 from app.interfaces.retriever import RetrieverInterface
