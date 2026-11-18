@@ -154,7 +154,7 @@ class AWSStorageService:
             "region": self.region,
             "target_bucket": self.bucket_name,
             "encryption_at_rest": "AES-256 (KMS / S3 Managed)",
-            "free_tier_eligibility": "Covered under AWS Free Tier (5 GB permanent free S3 storage)",
+            "storage_class": "STANDARD (AES-256 Server-Side Encryption)",
             "compliance_standards": ["HIPAA Security Rule § 164.312(a)(2)(iv)", "HITECH Act", "CIS AWS Foundations"]
         }
 

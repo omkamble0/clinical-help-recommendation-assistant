@@ -67,15 +67,15 @@ class AWSSSMService:
         return os.getenv(param_name, default)
 
     def get_status(self) -> Dict[str, Any]:
-        """Returns AWS SSM configuration and free-tier telemetry."""
+        """Returns AWS SSM configuration and service status."""
         return {
             "service": "AWS Systems Manager (SSM) Parameter Store",
-            "provider": "AWS SSM Standard Tier (100% Free Forever)",
+            "provider": "AWS Systems Manager Standard Tier",
             "is_connected": self._is_connected,
             "region": self.region,
             "parameter_namespace": self.parameter_prefix,
             "security_type": "SecureString (KMS Encrypted)",
-            "cost_per_month": "$0.00 (Standard parameters have zero monthly charges)"
+            "tier": "Standard Secure Parameter Storage"
         }
 
 

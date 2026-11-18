@@ -21,9 +21,9 @@ def test_aws_storage_status_endpoint():
     assert "storage" in data
     assert "secrets_manager" in data
     assert "aws_architecture" in data
-    assert data["aws_architecture"]["cdn"] == "Amazon CloudFront (1 TB/mo Free Tier)"
-    assert data["aws_architecture"]["storage"] == "Amazon S3 (5 GB Free Tier)"
-    assert data["aws_architecture"]["secrets"] == "AWS SSM Parameter Store (100% Free)"
+    assert "Amazon CloudFront" in data["aws_architecture"]["cdn"]
+    assert "Amazon S3" in data["aws_architecture"]["storage"]
+    assert "AWS SSM Parameter Store" in data["aws_architecture"]["secrets"]
 
 
 def test_aws_save_brief_endpoint():
@@ -59,8 +59,8 @@ def test_aws_storage_local_fallback_write():
 def test_aws_ssm_service_status():
     status = aws_ssm_service.get_status()
     assert "service" in status
-    assert "AWS SSM Standard Tier" in status["provider"]
-    assert status["cost_per_month"] == "$0.00 (Standard parameters have zero monthly charges)"
+    assert "Systems Manager" in status["service"]
+    assert "Standard" in status["provider"]
 
 
 def test_aws_bedrock_service_status():

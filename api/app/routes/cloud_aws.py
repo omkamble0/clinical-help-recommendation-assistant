@@ -32,7 +32,7 @@ async def get_aws_status() -> Dict[str, Any]:
     Returns real-time AWS Cloud status:
     - Amazon Bedrock Foundation Models (Meta Llama 3 & Amazon Titan Embeddings)
     - Amazon S3 storage connection, bucket, and encryption
-    - AWS SSM Parameter Store status and free tier verification
+    - AWS SSM Parameter Store status and encrypted secrets management
     - HIPAA compliance standards
     """
     return {
@@ -42,11 +42,11 @@ async def get_aws_status() -> Dict[str, Any]:
         "aws_architecture": {
             "generative_ai": "Amazon Bedrock (Meta Llama 3 8B)",
             "embeddings": "Amazon Titan Embeddings v2 (Dense 256-dim)",
-            "cdn": "Amazon CloudFront (1 TB/mo Free Tier)",
-            "storage": "Amazon S3 (5 GB Free Tier)",
-            "secrets": "AWS SSM Parameter Store (100% Free)",
-            "containers": "AWS ECR (500 MB Free) + App Runner / EC2 Free Tier",
-            "estimated_monthly_bill": "$0.00 / month (Optimized for AWS Free Tier)"
+            "cdn": "Amazon CloudFront Global CDN",
+            "storage": "Amazon S3 (AES-256 Server-Side Encryption)",
+            "secrets": "AWS SSM Parameter Store (Secure String KMS)",
+            "containers": "AWS ECR & Microservices Orchestration",
+            "compliance": "HIPAA-Aligned Server-Side Encryption"
         }
     }
 
