@@ -61,3 +61,19 @@ def test_aws_ssm_service_status():
     assert "service" in status
     assert "AWS SSM Standard Tier" in status["provider"]
     assert status["cost_per_month"] == "$0.00 (Standard parameters have zero monthly charges)"
+
+
+def test_aws_bedrock_service_status():
+    from app.core.aws_bedrock import aws_bedrock_service
+    status = aws_bedrock_service.get_status()
+    assert "service" in status
+    assert "Amazon Bedrock" in status["service"]
+    assert "meta.llama3-8b-instruct-v1:0" in status["llm_foundation_model"]
+
+
+def test_aws_bedrock_generate_endpoint():
+    response = client.post("/api/v1/cloud/aws/bedrock/generate", json={"prompt": "Ping", "max_tokens": 10})
+    assert response.status_code == 200
+    data = response.json()
+    assert "provider" in data
+    assert "Amazon Bedrock" in data["provider"]

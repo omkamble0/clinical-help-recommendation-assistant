@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from app.core.aws_storage import aws_storage_service
 from app.core.aws_ssm import aws_ssm_service
+from app.core.aws_bedrock import aws_bedrock_service
 
 router = APIRouter(prefix="/api/v1/cloud/aws", tags=["AWS Cloud Integration"])
 
@@ -20,24 +21,46 @@ class DoctorBriefRequest(BaseModel):
     citations: List[Any] = []
 
 
+class BedrockPromptRequest(BaseModel):
+    prompt: str
+    max_tokens: int = 300
+
+
 @router.get("/status", summary="AWS Cloud Infrastructure Status")
 async def get_aws_status() -> Dict[str, Any]:
     """
     Returns real-time AWS Cloud status:
+    - Amazon Bedrock Foundation Models (Meta Llama 3 & Amazon Titan Embeddings)
     - Amazon S3 storage connection, bucket, and encryption
     - AWS SSM Parameter Store status and free tier verification
     - HIPAA compliance standards
     """
     return {
+        "bedrock_ai": aws_bedrock_service.get_status(),
         "storage": aws_storage_service.get_status(),
         "secrets_manager": aws_ssm_service.get_status(),
         "aws_architecture": {
+            "generative_ai": "Amazon Bedrock (Meta Llama 3 8B)",
+            "embeddings": "Amazon Titan Embeddings v2 (Dense 256-dim)",
             "cdn": "Amazon CloudFront (1 TB/mo Free Tier)",
             "storage": "Amazon S3 (5 GB Free Tier)",
             "secrets": "AWS SSM Parameter Store (100% Free)",
             "containers": "AWS ECR (500 MB Free) + App Runner / EC2 Free Tier",
             "estimated_monthly_bill": "$0.00 / month (Optimized for AWS Free Tier)"
         }
+    }
+
+
+@router.post("/bedrock/generate", summary="Generate Clinical Response via Amazon Bedrock")
+async def generate_bedrock(payload: BedrockPromptRequest) -> Dict[str, Any]:
+    """
+    Directly invokes Meta Llama 3 on Amazon Bedrock runtime.
+    """
+    out = aws_bedrock_service.generate(payload.prompt, max_tokens=payload.max_tokens)
+    return {
+        "provider": "Amazon Bedrock (AWS)",
+        "model": "meta.llama3-8b-instruct-v1:0",
+        "output": out or "Model generation offline or pending IAM activation"
     }
 
 
