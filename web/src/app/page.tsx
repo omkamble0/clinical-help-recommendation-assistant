@@ -28,7 +28,6 @@ import {
   ExternalLink,
   Activity
 } from "lucide-react";
-import { IntegratedChatThread } from "@/components/integrated-chat-thread";
 import { MedicalWikiViewer } from "@/components/medical-wiki-viewer";
 
 export default function Home() {
@@ -833,8 +832,8 @@ export default function Home() {
             />
           </div>
         ) : primaryView === "split" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start py-6 animate-fade-in">
-            <div className="lg:col-span-7 h-[85vh]">
+          <div className="py-6 animate-fade-in">
+            <div className="w-full h-[85vh]">
               <MedicalWikiViewer
                 initialTopicId={selectedWikiTopicId}
                 mode={mode === "professional" ? "clinician" : "patient"}
@@ -844,15 +843,6 @@ export default function Home() {
                   setQuery(q);
                   handleSearch(q);
                 }}
-              />
-            </div>
-            <div className="lg:col-span-5 h-[85vh] bg-white border border-slate-200 rounded-2xl shadow-xs p-4 flex flex-col overflow-hidden">
-              <IntegratedChatThread
-                initialTopic={query || selectedWikiTopicId}
-                mode={mode}
-                response={result}
-                activeCitation={activeCitation}
-                onSelectCitation={handleSelectCitation}
               />
             </div>
           </div>
@@ -918,14 +908,6 @@ export default function Home() {
                   onSelectCitation={handleSelectCitation}
                 />
               )}
-
-              <IntegratedChatThread
-                initialTopic={activeQueryText}
-                mode={mode}
-                response={result}
-                activeCitation={activeCitation}
-                onSelectCitation={handleSelectCitation}
-              />
             </div>
 
             {/* Evidence Sidebar */}
