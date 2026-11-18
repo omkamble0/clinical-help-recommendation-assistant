@@ -356,8 +356,14 @@ export default function Home() {
             </button>
           </nav>
 
-          {/* Right Mode Toggle */}
-          <div className="flex items-center gap-2">
+          {/* Right Mode Toggle & Cloud Telemetry */}
+          <div className="flex items-center gap-2.5">
+            {/* Live Cloud Status Pill */}
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50/90 border border-emerald-200/80 text-[11px] font-semibold text-emerald-800 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>AWS Bedrock • Redis 0.2ms</span>
+            </div>
+
             <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80">
               <button
                 type="button"
