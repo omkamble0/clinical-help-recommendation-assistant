@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   # ============================================================================
-  # 1. Backend Verification & 103 Clinical RAG Tests
+  # 1. Backend Verification & 120 Clinical RAG Tests
   # ============================================================================
   backend-verification:
     name: Backend Test Suite (Python 3.11)
@@ -39,7 +39,7 @@ jobs:
           pip install -r api/requirements.txt
           pip install pytest pytest-cov
 
-      - name: Run Clinical Verification & Integration Tests (103 Tests)
+      - name: Run Clinical Verification & Integration Tests (120 Tests)
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/api
           TESTING: "true"
